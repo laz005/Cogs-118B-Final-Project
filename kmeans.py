@@ -1,7 +1,7 @@
 ################################# IMPORT #######################################
 from pprint import pprint
 from random import randint
-from random import sample
+from random import sample as randsample
 from decimal import Decimal
 import numpy
 import numpy.matlib
@@ -54,28 +54,28 @@ for dat in range(0,len(data)):
 #print (dataLabel)
 #pprint(data)
 
-#Grab 4 random points in the Dataset for random cluster means
+#Grab 5 random points in the Dataset for random cluster means
 # rand = []
-rand = sample(data, 4)
+rand = randsample(data, 5)
 
 # for i in range(0,5):
 #     random = randint(0,len(data))
 #     rand.append(data[random])
 
-
-
 #print(rand)
 #print(len(data[random]))
 # - Create a label array as a result
+
 oldLabelVec = numpy.zeros(len(data))
 labelVec = numpy.zeros(len(data))
-distVector = numpy.zeros((len(data),5)) #Initialize matrix for distance
+distVector = numpy.zeros((len(data), 5)) #Initialize matrix for distance
 #Loop This:
     #Find Closest datapoints to those randomized Points
         # - Distance metric or PCA
         # - Determine label of points via lowest Distance
 count = 0
 while True:
+    # calc distances from each data point to each mean
     for dataPt in range(0,len(data)):
         for mean in range(0,5):
             distVector[dataPt][mean] = L1(data[dataPt],rand[mean])
