@@ -1,6 +1,7 @@
 ################################# IMPORT #######################################
 from pprint import pprint
 from random import randint
+from random import sample
 from decimal import Decimal
 import numpy
 import numpy.matlib
@@ -41,6 +42,7 @@ def L1(v1,v2):
 
 #Load data
 data = pickle.load(open("ClevelandProcData.p","rb"))
+
 #Turn all decimal data into float data
 for a in range(0,len(data)):
     for b in range(0,len(data[a])):
@@ -52,11 +54,16 @@ for dat in range(0,len(data)):
 #print (dataLabel)
 #pprint(data)
 
-#Randomize Points in the Dataset
-rand = []
-for i in range(0,5):
-    random = randint(0,len(data))
-    rand.append(data[random])
+#Grab 4 random points in the Dataset for random cluster means
+# rand = []
+rand = sample(data, 4)
+
+# for i in range(0,5):
+#     random = randint(0,len(data))
+#     rand.append(data[random])
+
+
+
 #print(rand)
 #print(len(data[random]))
 # - Create a label array as a result
