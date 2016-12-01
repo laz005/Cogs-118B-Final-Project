@@ -42,21 +42,23 @@ def L1(v1,v2):
 
 #Load data
 data = pickle.load(open("ClevelandProcData.p","rb"))
+N = len(data)  # number of data points
+K = 5          # number of clusters
 
 #Turn all decimal data into float data
-for a in range(0,len(data)):
+for a in range(0, N):
     for b in range(0,len(data[a])):
         data[a][b] = float(data[a][b])
 #Seperate data from label for crossvalidation
 dataLabel = [row[13] for row in data]
-for dat in range(0,len(data)):
+for dat in range(0, N):
     del data[dat][13]
 #print (dataLabel)
 #pprint(data)
 
 #Grab 5 random points in the Dataset for random cluster means
 # rand = []
-rand = randsample(data, 5)
+rand = randsample(data, K)
 
 # for i in range(0,5):
 #     random = randint(0,len(data))
@@ -66,9 +68,9 @@ rand = randsample(data, 5)
 #print(len(data[random]))
 # - Create a label array as a result
 
-oldLabelVec = numpy.zeros(len(data))
-labelVec = numpy.zeros(len(data))
-distVector = numpy.zeros((len(data), 5)) #Initialize matrix for distance
+oldLabelVec = numpy.zeros(N)
+labelVec = numpy.zeros(N)
+distVector = numpy.zeros((N, K)) #Initialize matrix for distance
 #Loop This:
     #Find Closest datapoints to those randomized Points
         # - Distance metric or PCA
@@ -76,34 +78,33 @@ distVector = numpy.zeros((len(data), 5)) #Initialize matrix for distance
 count = 0
 while True:
     # calc distances from each data point to each mean
-    for dataPt in range(0,len(data)):
-        for mean in range(0,5):
-            distVector[dataPt][mean] = L1(data[dataPt],rand[mean])
+    for dataPt in range(0, N):
+        for k in range(0,K):
+            distVector[dataPt][k] = L1(data[dataPt], rand[k])
             #print(distVector[dataPt][mean])
     count += 1
-    print(count)
-    for d in range(0,len(distVector)):
-        label = 0
-        labelVal = 0
-        for l in range(0,5):
-            if l == 0:
+    # print(count)
+
+    # Find minimum distance, assign labels
+    for d in range(0, N):
+        labelVec[d] = 0
+        labelVal = distVector[d][0]
+        for l in range(1, K):
+            if distVector[d][l] < labelVal:
+                labelVec[d] = l
                 labelVal = distVector[d][l]
-            else:
-                if distVector[d][l] < labelVal:
-                    label = l
-                    labelVal = distVector[d][l]
-        labelVec[d] = label
-    #Check if means change/labels change.
+
+    # Check if means change/labels change.
         # - If labels do not change, then exit loop.
-    print(oldLabelVec)
-    print(labelVec)
+    #print(oldLabelVec)
+    #print(labelVec)
     if (oldLabelVec==labelVec).all():
         print("Break")
         break
-    else:
-        oldLabelVec = labelVec
-    #Calculate new mean based on label
-    labelCount = numpy.zeros(5) # Count Array for values associated with a certain label
+    oldLabelVec = labelVec
+
+    # Calculate new mean based on labels
+    labelCount = numpy.zeros(K) # Count Array for values associated with a certain label
     meanVec = numpy.zeros((5,13)) # Sum of all pts for a label.
     for z in range(0,5):
         for y in range(0,len(labelVec)):
@@ -113,19 +114,30 @@ while True:
                 #print("data[y]: %s" %data[y])
             for x in range(0,13): # Iterate through each dimension of vector
                 meanVec[z][x] += data[y][x]
+
+    # Renu - simpler way to calc labels count and sum vector
+    for x in range(0, N):
+        label = labelVec[x]
+        labelCount[label] += 1
+        meanVec[label] = meanVec[label] + data[x]
+    #print "calculating means"
     #print(meanVec)
     labelCount = labelCount[numpy.newaxis]
     labelCount = numpy.matlib.repmat(labelCount.T,1,13)
     #print(labelCount)
     rand = meanVec/labelCount
-    print(rand)
+    #print(rand)
+
 ################################# CROSS VALIDATION ################################
 #Cross validate with data that we have.
 loss = 0
-for q in range(0,len(data)):
+for q in range(0, N):
     if labelVec[q] != dataLabel[q]:
         loss = loss + 1
 
 print(loss)
+
+
+################################# EXTERNAL VALIDATION ################################
 
 #Graph it to visualize data:
