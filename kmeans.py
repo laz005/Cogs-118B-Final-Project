@@ -44,6 +44,7 @@ def L1(v1,v2):
 data = pickle.load(open("ClevelandProcData.p","rb"))
 N = len(data)  # number of data points
 K = 5          # number of clusters
+print N
 
 #Turn all decimal data into float data
 for a in range(0, N):
@@ -76,7 +77,7 @@ distVector = numpy.zeros((N, K)) #Initialize matrix for distance
         # - Distance metric or PCA
         # - Determine label of points via lowest Distance
 count = 0
-while True:
+while count <1:
     # calc distances from each data point to each mean
     for dataPt in range(0, N):
         for k in range(0,K):
@@ -97,7 +98,8 @@ while True:
     # Check if means change/labels change.
         # - If labels do not change, then exit loop.
     #print(oldLabelVec)
-    #print(labelVec)
+    print 'labelVec:'
+    print (labelVec)
     if (oldLabelVec==labelVec).all():
         print("Break")
         break
@@ -106,21 +108,22 @@ while True:
     # Calculate new mean based on labels
     labelCount = numpy.zeros(K) # Count Array for values associated with a certain label
     meanVec = numpy.zeros((5,13)) # Sum of all pts for a label.
-    for z in range(0,5):
-        for y in range(0,len(labelVec)):
-            if labelVec[y] == z:
-                labelCount[z] += 1
-                #print("MeanVec[z]: %s" %meanVec[z])
-                #print("data[y]: %s" %data[y])
-            for x in range(0,13): # Iterate through each dimension of vector
-                meanVec[z][x] += data[y][x]
+    # for z in range(0,5):
+    #     for y in range(0,len(labelVec)):
+    #         if labelVec[y] == z:
+    #             labelCount[z] += 1
+    #             #print("MeanVec[z]: %s" %meanVec[z])
+    #             #print("data[y]: %s" %data[y])
+    #         for x in range(0,13): # Iterate through each dimension of vector
+    #             meanVec[z][x] += data[y][x]
 
+    print "calculating means"
     # Renu - simpler way to calc labels count and sum vector
     for x in range(0, N):
-        label = labelVec[x]
+        label = int(labelVec[x])
         labelCount[label] += 1
         meanVec[label] = meanVec[label] + data[x]
-    #print "calculating means"
+
     #print(meanVec)
     labelCount = labelCount[numpy.newaxis]
     labelCount = numpy.matlib.repmat(labelCount.T,1,13)
@@ -139,5 +142,26 @@ print(loss)
 
 
 ################################# EXTERNAL VALIDATION ################################
+# count for each cluster, how many data points fall into each goal (OG labels = dataLabel)
+results = numpy.zeros((K+1, K+2)) # rows are determined clusters, columns are OG goals from data Label & entropy & purity & max
 
-#Graph it to visualize data:
+# #######  Goal0   Goal1   Goal2   Goal3   Goal4    Entropy     Purity      Goal w/ max freq
+# Cluster1
+# Cluster2
+# Cluster3
+# Cluster4
+# Cluster5
+# TOTAL
+
+# count frequency in each cluster per goal
+for d in range(0,N):
+    cluster = labelVec[d]
+    goal = dataLabel[d]
+    results[cluster][goal] += 1
+# add in totals
+for k in range(0,K):
+    results[K][k] = numpy.sum(results[0:K][k])
+#print results
+#print labelCount
+
+# Graph it to visualize data:
