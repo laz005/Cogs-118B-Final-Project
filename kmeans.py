@@ -9,7 +9,7 @@ import pickle
 #################################### FUNCTIONS ################################
 def getoccurence(s,h):
     return [i for i, letter in enumerate(s) if letter == h]
-#Manhattan / L1 Distance
+# Manhattan / L1 Distance
 def L1(v1,v2):
     if( len(v1) != len(v2) ):
         print "error"
@@ -54,10 +54,10 @@ for a in range(0, N):
 dataLabel = [row[13] for row in data]
 for dat in range(0, N):
     del data[dat][13]
-#print (dataLabel)
-#pprint(data)
+# print (dataLabel)
+# print(data)
 
-#Grab 5 random points in the Dataset for random cluster means
+# Grab 5 random points in the Dataset for random cluster means
 # rand = []
 rand = randsample(data, K)
 
@@ -77,7 +77,7 @@ distVector = numpy.zeros((N, K)) #Initialize matrix for distance
         # - Distance metric or PCA
         # - Determine label of points via lowest Distance
 count = 0
-while count <1:
+while True:
     # calc distances from each data point to each mean
     for dataPt in range(0, N):
         for k in range(0,K):
@@ -98,8 +98,8 @@ while count <1:
     # Check if means change/labels change.
         # - If labels do not change, then exit loop.
     #print(oldLabelVec)
-    print 'labelVec:'
-    print (labelVec)
+    #print 'labelVec:'
+    #print (labelVec)
     if (oldLabelVec==labelVec).all():
         print("Break")
         break
@@ -117,7 +117,7 @@ while count <1:
     #         for x in range(0,13): # Iterate through each dimension of vector
     #             meanVec[z][x] += data[y][x]
 
-    print "calculating means"
+    #print "calculating means"
     # Renu - simpler way to calc labels count and sum vector
     for x in range(0, N):
         label = int(labelVec[x])
@@ -133,17 +133,17 @@ while count <1:
 
 ################################# CROSS VALIDATION ################################
 #Cross validate with data that we have.
-loss = 0
-for q in range(0, N):
-    if labelVec[q] != dataLabel[q]:
-        loss = loss + 1
-
-print(loss)
+# loss = 0
+# for q in range(0, N):
+#     if labelVec[q] != dataLabel[q]:
+#         loss = loss + 1
+#
+# print(loss)
 
 
 ################################# EXTERNAL VALIDATION ################################
 # count for each cluster, how many data points fall into each goal (OG labels = dataLabel)
-results = numpy.zeros((K+1, K+2)) # rows are determined clusters, columns are OG goals from data Label & entropy & purity & max
+results = numpy.zeros((K+1, K+3)) # rows are determined clusters, columns are OG goals from data Label & entropy & purity & max
 
 # #######  Goal0   Goal1   Goal2   Goal3   Goal4    Entropy     Purity      Goal w/ max freq
 # Cluster1
@@ -154,14 +154,28 @@ results = numpy.zeros((K+1, K+2)) # rows are determined clusters, columns are OG
 # TOTAL
 
 # count frequency in each cluster per goal
-for d in range(0,N):
+for d in range(0, N):
     cluster = labelVec[d]
     goal = dataLabel[d]
     results[cluster][goal] += 1
 # add in totals
 for k in range(0,K):
     results[K][k] = numpy.sum(results[0:K][k])
-#print results
+# calc entropy
+
+
+# calc purity
+
+print 'calc goals'
+# determine goal with max freq per cluster
+for cluster in range(0,K):
+    mode = 0
+    for goal in range(1,K):
+        if results[cluster][goal] > results[cluster][mode]:
+            mode = goal
+    results[cluster][K+2]=mode
+
+print results
 #print labelCount
 
 # Graph it to visualize data:
