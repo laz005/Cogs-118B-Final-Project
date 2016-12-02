@@ -24,7 +24,19 @@ dataLabels = [row[13] for row in data]
 for dat in range(0, N):
     del data[dat][13]
 
+def zscoredata(dataarray):
+    data = numpy.array(dataarray)
+    N = len(data)
+    #print data
+    means = numpy.mean(data,axis=0)
+    stds = numpy.std(data,axis=0)
 
+    means = numpy.matlib.repmat(means, N, 1)
+    stds = numpy.matlib.repmat(stds, N, 1)
+
+    data = (data-means)/stds
+    #print data
+    return data
 
 # data - data matrix, N x D where N = number of data points & D = dim of each data point
 # K - number of clusters
@@ -139,21 +151,37 @@ def validate(clusterResps,externalLabels,K):
     return results
 
 def processToBinary(externalLabels):
-    binaryLabels = [label if label == 0 else 1 for label in externalLabels]
+    binaryLabels = [label if label==0 else 1 for label in externalLabels]
     # print binaryLabels
     return binaryLabels
+
+def countGoals(goalLabels):
+    counts = {}
+    for goal in goalLabels:
+        g = str(int(goal))
+        if g not in counts:
+            counts[g] = 1
+        else:
+            counts[g] += 1
+    print counts
+    return counts
 
 #print('run Kmeans with 5 clusters')
 # run functions on data
 #K = 5  # number of clusters
 #clusterResps = runkmeans(data,K)
 #validate(clusterResps,dataLabels,K)
+print dataLabels
+countGoals(dataLabels)
 
 #print dataLabels
-print('run Kmeans with 2 clusters')
-binaryLabels = processToBinary(dataLabels)
-K = 2
-clusterResps = runkmeans(data,K)
-print 'assigned clusters'
-print clusterResps
-validate(clusterResps,binaryLabels,K)
+#print('run Kmeans with 2 clusters')
+# binaryLabels = processToBinary(dataLabels)
+# countGoals(binaryLabels)
+# K = 2
+# clusterResps = runkmeans(data,K)
+# print 'assigned clusters'
+# print clusterResps
+# validate(clusterResps,binaryLabels,K)
+
+zscoredata(data)
