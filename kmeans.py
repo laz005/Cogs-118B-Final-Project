@@ -44,7 +44,7 @@ def L1(v1,v2):
 data = pickle.load(open("ClevelandProcData.p","rb"))
 N = len(data)  # number of data points
 K = 5          # number of clusters
-print N
+
 
 #Turn all decimal data into float data
 for a in range(0, N):
@@ -102,6 +102,7 @@ while True:
     #print (labelVec)
     if (oldLabelVec==labelVec).all():
         print("Break")
+        print(count)
         break
     oldLabelVec = labelVec
 
@@ -166,14 +167,18 @@ for k in range(0,K):
 
 # calc purity
 
-print 'calc goals'
+
 # determine goal with max freq per cluster
-for cluster in range(0,K):
-    mode = 0
+for cluster in range(0, K):
+    mode = 0  # to determine goal with max freq per cluster
+    totalpercluster=results[cluster][0]  # to calc prob of a goal occurring in specific cluster
     for goal in range(1,K):
+        totalpercluster += results[cluster][goal]
         if results[cluster][goal] > results[cluster][mode]:
             mode = goal
-    results[cluster][K+2]=mode
+    results[cluster][K+2] = mode                                   # calc goal with max freq
+    results[cluster][K+1] = results[cluster][mode]/totalpercluster # calc cluster purity
+    # calc cluster entropy
 
 print results
 #print labelCount
