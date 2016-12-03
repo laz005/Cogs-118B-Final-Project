@@ -107,11 +107,13 @@ def runkmeans(data,K):
 # externalLabels - N dim array holding external label already assigned to nth datapoint (goal characteristic from 0-4)
 # K - number of clusters
 def validate(clusterResps,externalLabels,K):
-    results = numpy.zeros((K + 1, K + 3))
+    results = numpy.zeros((K + 1, K + 4))
     labelVec = clusterResps
     dataLabel = externalLabels
 
-    # #######  Goal0   Goal1   Goal2   Goal3   Goal4    Entropy     Purity      Goal w/ max freq
+    # format for results matrix (Confusion Matrix)
+
+    # #######  Goal0   Goal1   Goal2   Goal3   Goal4    TOTAL     Entropy     Purity      Goal w/ max relative freq
     # Cluster1
     # Cluster2
     # Cluster3
@@ -125,26 +127,26 @@ def validate(clusterResps,externalLabels,K):
         goal = dataLabel[d]
         results[cluster][goal] += 1
     print ('calculated frequencies in results array')
-    print results
-    # add in totals
-    for k in range(0, K):
-        results[K][k] = numpy.sum(results[0:K][k])
+
+    # add in totals in margins
+    results[K][0:K] = numpy.sum(results[:, 0:K], axis=0)   # goal totals
+    sums = numpy.sum(results[:, 0:K], axis=1)
+    results[0:K+1, K] = sums  # cluster totals
     # calc entropy
 
 
     # calc purity
 
 
-    # determine goal with max freq per cluster
+    # determine goal with max relative freq per cluster
     for cluster in range(0, K):
         mode = 0  # to determine goal with max freq per cluster
-        totalpercluster = results[cluster][0]  # to calc prob of a goal occurring in specific cluster
         for goal in range(1, K):
-            totalpercluster += results[cluster][goal]
-            if results[cluster][goal] > results[cluster][mode]:
+            if results[cluster][goal]/results[K][goal] > results[cluster][mode]/results[K][mode]:
                 mode = goal
-        results[cluster][K + 2] = mode  # calc goal with max freq
-        results[cluster][K + 1] = results[cluster][mode] / totalpercluster  # calc cluster purity
+        #results[cluster][K + 1] = numpy.sum(results[cluster])
+        results[cluster][K + 3] = mode  # calc goal with max freq
+        #results[cluster][K + 2] = results[cluster][mode] / totalpercluster  # calc cluster purity
         # calc cluster entropy
 
     print results
@@ -163,16 +165,18 @@ def countGoals(goalLabels):
             counts[g] = 1
         else:
             counts[g] += 1
-    print counts
+    #print counts
     return counts
 
-#print('run Kmeans with 5 clusters')
+print('run Kmeans with 5 clusters')
+data = zscoredata(data)
 # run functions on data
-#K = 5  # number of clusters
-#clusterResps = runkmeans(data,K)
-#validate(clusterResps,dataLabels,K)
-print dataLabels
-countGoals(dataLabels)
+K = 5  # number of clusters
+clusterResps = runkmeans(data,K)
+print validate(clusterResps,dataLabels,K)
+#print dataLabels
+counts = countGoals(dataLabels)
+print counts
 
 #print dataLabels
 #print('run Kmeans with 2 clusters')
