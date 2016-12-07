@@ -182,26 +182,43 @@ def calcError(data,Kmus,labelVec):
     print error
     return error
 
+def OGMeans(data,dataLabels):
+    meanData = numpy.zeros((5, len(data[0])))
+    count = numpy.zeros(5)
+    for j in range(0, 5):
+        for i in range(0, len(dataLabels)):
+            if dataLabels[i] == j:
+                meanData[j] = numpy.add(meanData[j], data[i])
+                count[j] += 1
+        meanData[j] = meanData[j] / numpy.matlib.repmat(count[j], 1, 13)
+    return meanData
+
 
 print('run Kmeans with 5 clusters')
 data = zscoredata(data)
-# run functions on data
 K = 5  # number of clusters
-Kmus,clusterResps = runkmeans(data,K)
-validate(clusterResps,dataLabels,K)
-#print dataLabels
-calcError(data,Kmus,clusterResps)
+for i in range(0,10):
+    # run functions on data
+    Kmus,clusterResps = runkmeans(data,K)
+    validate(clusterResps,dataLabels,K)
+    #print dataLabels
+    calcError(data,Kmus,clusterResps)
+
+print('error of actual means')
+means = OGMeans(data,dataLabels)
+calcError(data,means,dataLabels)
 
 
 #print dataLabels
-#print('run Kmeans with 2 clusters')
-# binaryLabels = processToBinary(dataLabels)
-# countGoals(binaryLabels)
-# K = 2
-# clusterResps = runkmeans(data,K)
+print('run Kmeans with 2 clusters')
+binaryLabels = processToBinary(dataLabels)
+
+K = 2
+Kmus, clusterResps = runkmeans(data,K)
 # print 'assigned clusters'
 # print clusterResps
-# validate(clusterResps,binaryLabels,K)
+validate(clusterResps,binaryLabels,K)
+calcError(data,Kmus,binaryLabels)
 
 print data
 
