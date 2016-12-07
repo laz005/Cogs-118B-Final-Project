@@ -193,7 +193,18 @@ def OGMeans(data,dataLabels):
         meanData[j] = meanData[j] / numpy.matlib.repmat(count[j], 1, 13)
     return meanData
 
+def processCSVtoPickle(input,output):
+    f = open(input,"r")
+    #Save Data into usable file type, first to array, then pickle array.
+    #Note: We changed ? to 0.0 values
+    data = []
+    c = 0
+    for lines in f:
+        data.append(lines.replace(' ', '').split(','))
+    pickle.dump(data, open(output, "wb"))
 
+
+##################################################################################################################
 print('run Kmeans with 5 clusters')
 data = zscoredata(data)
 K = 5  # number of clusters
@@ -208,8 +219,7 @@ print('error of actual means')
 means = OGMeans(data,dataLabels)
 calcError(data,means,dataLabels)
 
-
-#print dataLabels
+##################################################################################################################
 print('run Kmeans with 2 clusters')
 binaryLabels = processToBinary(dataLabels)
 
@@ -221,4 +231,28 @@ validate(clusterResps,binaryLabels,K)
 calcError(data,Kmus,binaryLabels)
 
 print data
+
+
+
+##################################################################################################################
+#  run k means on pca data
+processCSVtoPickle('pcaData.dat', 'pcaData.p')
+pcadata = pickle.load(open("pcaData.p", "rb")) #Load data
+N = len(pcadata)
+
+#Turn all decimal data into float data
+for a in range(0, N):
+    for b in range(0,len(pcadata[a])):
+        pcadata[a][b] = float(pcadata[a][b])
+
+#print dataLabels
+print('run Kmeans with 5 clusters on PCA Data')
+binaryLabels = processToBinary(dataLabels)
+
+K = 5
+Kmus, clusterResps = runkmeans(data,K)
+# print 'assigned clusters'
+# print clusterResps
+validate(clusterResps,dataLabels,K)
+calcError(data,Kmus,dataLabels)
 
